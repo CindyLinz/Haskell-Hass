@@ -62,5 +62,5 @@ lexer bs = case B.uncons bs of
     where 
       isWord x = W.isAlpha x || W.isDigit x || x == W._underscore || x == W._hyphen || x > 127
       isSpace x = x <= 127 && W.isSpace x
-      takeWord con bs = con word : lexer bs
-        where (word, bs'') = B.span isWord bs
+      takeWord con bs = con word : lexer bs'
+        where (word, bs') = B.span isWord bs
