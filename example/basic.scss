@@ -1,9 +1,17 @@
+@charset utf-8
+
 /* a basic
     sample
   */
+
+$bg: blue
 body {
   font: Arial;
-  background: blue;
+  background: $bg;
+}
+
+%tmp {
+  float: right
 }
 
 #page {
