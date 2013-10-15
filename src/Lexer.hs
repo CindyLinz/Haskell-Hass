@@ -3,6 +3,7 @@ module Lexer
   ) where
 
 import qualified Data.Word8 as W
+import Data.Char
 
 import qualified Data.ByteString as B
 
@@ -16,7 +17,15 @@ data Token
   | T_Word B.ByteString
   | T_Space B.ByteString
   | T_Comment B.ByteString Comment.Type Comment.Important
-  deriving Show
+
+instance Show Token where
+  show (T_Symbol x) = "T_Symbol " ++ [chr $ fromIntegral x]
+  show (T_Directive x) = "T_Directive " ++ show x
+  show (T_Variable x) = "T_Variable " ++ show x
+  show (T_Placeholder x) = "T_Placeholder " ++ show x
+  show (T_Word x) = "T_Word " ++ show x
+  show (T_Space x) = "T_Space " ++ show x
+  show (T_Comment bs t i) = "T_Comment " ++ show bs ++ " " ++ show t ++ " " ++ show i
 
 lexer :: B.ByteString -> [Token]
 lexer bs = case B.uncons bs of
