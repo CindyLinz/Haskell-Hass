@@ -1,14 +1,16 @@
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 module Lexer
   ( lexer
   , MonadLineNumberKeeper
-  , LineNumberKeeperT (..)
+  , runLineNumberKeeperT
+  , LineNumberKeeperT
   , getLineNumber
   , Token (..)
   ) where
 
 import qualified Data.Word8 as W
 import Data.Char
-import Control.Monad.Trans.Class
+import Control.Monad.State
 
 import qualified Data.ByteString as B
 
@@ -40,29 +42,18 @@ class Monad m => MonadLineNumberKeeper m where
   getStream :: m B.ByteString
   setStream :: B.ByteString -> m ()
 
-newtype LineNumberKeeperT m a = LineNumberKeeperT
-  { runLineNumberKeeperT :: Int -> B.ByteString -> m (a, Int, B.ByteString)
-  }
+type LineNumberKeeperT = StateT (Int, B.ByteString)
 
-instance Functor m => Functor (LineNumberKeeperT m) where
-  fmap f m = LineNumberKeeperT $ \ln bs -> fmap (\(a, b, c) -> (f a, b, c)) (runLineNumberKeeperT m ln bs)
-
-instance Monad m => Monad (LineNumberKeeperT m) where
-  return a = LineNumberKeeperT $ \ln bs -> return (a, ln, bs)
-  m >>= f = LineNumberKeeperT $ \ln bs -> do
-    (a, ln', bs') <- runLineNumberKeeperT m ln bs
-    runLineNumberKeeperT (f a) ln' bs'
-
-instance MonadTrans LineNumberKeeperT where
-  lift m = LineNumberKeeperT $ \ln bs -> m >>= \a -> return (a, ln, bs)
+runLineNumberKeeperT :: LineNumberKeeperT m a -> Int -> B.ByteString -> m (a, (Int, B.ByteString))
+runLineNumberKeeperT m ln bs = runStateT m (ln, bs)
 
 instance Monad m => MonadLineNumberKeeper (LineNumberKeeperT m) where
-  advanceLineNumber step = LineNumberKeeperT $ \ln bs -> return ((), ln+step, bs)
-  getStream = LineNumberKeeperT $ \ln bs -> return (bs, ln, bs)
-  setStream bs = LineNumberKeeperT $ \ln _ -> return ((), ln, bs)
+  advanceLineNumber step = modify $ \(ln, bs) -> (ln+step, bs)
+  getStream = get >>= return . snd
+  setStream bs = modify $ \(ln, _) -> (ln, bs)
 
 getLineNumber :: Monad m => LineNumberKeeperT m Int
-getLineNumber = LineNumberKeeperT $ \ln bs -> return (ln, ln, bs)
+getLineNumber = get >>= return . fst
 
 lexer :: MonadLineNumberKeeper m => (Token -> m a) -> m a
 lexer cont = getStream >>= \bs -> case B.uncons bs of

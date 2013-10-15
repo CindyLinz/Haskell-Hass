@@ -3,7 +3,7 @@ module Main
   ) where
 
 import qualified Data.ByteString as B
-import Control.Monad.Trans.Class
+import Control.Monad.Trans
 
 import Lexer
 
