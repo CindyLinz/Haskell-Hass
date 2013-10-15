@@ -40,7 +40,7 @@ Category:            Web, Language
 
 Stability:           alpha
 
-Build-type:          Simple
+Build-type:          Custom
 
 Tested-with:         GHC == 7.6.2
 
