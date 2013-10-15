@@ -53,18 +53,32 @@ Extra-source-files:
 -- Constraint on the version of Cabal needed to build this package.
 Cabal-version:       >= 1.9.2
 
+Source-repository master
+  type: git
+  location: https://github.com/CindyLinz/Haskell-Hass.git
+
 Executable hass
   hs-source-dirs:      src
   main-is:             Main.hs
   
   Build-tools:         happy >= 1.18
-  Build-depends:       base >= 4.0 && < 5
-  
-Test-Suite test
-  type:                exitcode-stdio-1.0
+  Build-depends:       base >= 4.0 && < 5,
+                       bytestring,
+                       word8
+
+flag test
+  description:         also build the test executable
+  default:             False
+
+Executable hass-test
+  if flag(test)
+    Buildable:           True
+  else
+    Buildable:           False
+  hs-source-dirs:      test, src
   main-is:             Main.hs
-  hs-source-dirs:      testsuite/tests
-  build-depends:       base >= 4.0 && < 5,
-                       Cabal >= 1.9.2,
-                       Hass
+  Build-tools:         happy >= 1.18
+  Build-depends:       base >= 4.0 && < 5,
+                       bytestring,
+                       word8
 
