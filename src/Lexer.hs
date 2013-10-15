@@ -45,6 +45,8 @@ lexer bs = case B.uncons bs of
           | first == W._at -> takeWord T_Directive bs'
           | first == W._percent -> takeWord T_Placeholder bs'
           | first == W._dollar -> takeWord T_Variable bs'
+          | otherwise -> fallback
+        False
           | first == W._slash ->
             let
               T_Comment comment _ _ = head result
@@ -59,13 +61,12 @@ lexer bs = case B.uncons bs of
                   in T_Comment c Comment.SingleLine importance : lexer bs'''
                 | second == W._asterisk =
                   let
-                    (c, later) = B.breakSubstring bs'' (B.pack [W._asterisk, W._slash])
+                    (c, later) = B.breakSubstring (B.pack [W._asterisk, W._slash]) bs''
                     bs''' = B.drop 2 later
                   in T_Comment c Comment.MultiLine importance : lexer bs'''
                 | otherwise = fallback
             in result
           | otherwise -> fallback
-        _ -> fallback
       where
         fallback = T_Symbol first : lexer bs'
     where 
