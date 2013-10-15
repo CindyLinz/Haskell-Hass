@@ -1,10 +1,11 @@
-@charset utf-8
+@charset "utf-8";
 
 /* a basic
     sample
   */
 
-$bg: blue
+$bg: blue;
+
 body {
   font: Arial;
   background: $bg;
