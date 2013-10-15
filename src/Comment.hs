@@ -6,9 +6,9 @@ module Comment
 data Type
   = MultiLine
   | SingleLine
-  deriving Show
+  deriving (Show, Eq)
 
 data Important
   = Important
   | NotImportant
-  deriving Show
+  deriving (Show, Eq)

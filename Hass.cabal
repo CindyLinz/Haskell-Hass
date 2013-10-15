@@ -64,6 +64,7 @@ Executable hass
   Build-tools:         happy >= 1.18
   Build-depends:       base >= 4.0 && < 5,
                        bytestring,
+                       transformers,
                        word8
 
 flag test
@@ -80,5 +81,6 @@ Executable hass-test
   Build-tools:         happy >= 1.18
   Build-depends:       base >= 4.0 && < 5,
                        bytestring,
+                       transformers,
                        word8
 
