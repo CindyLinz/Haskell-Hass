@@ -4,7 +4,8 @@ import System.Cmd
 
 main = defaultMainWithHooks simpleUserHooks
   { preBuild = \_ _ -> do
-    putStrLn "happy src/Parser.y"
-    system "happy src/Parser.y"
+    system "rm -f src/Parser.hs src/Parser.info"
+    putStrLn "happy -i -o src/Parser.hs src/Parser.y"
+    system "happy -i -o src/Parser.hs src/Parser.y"
     return emptyHookedBuildInfo
   }
