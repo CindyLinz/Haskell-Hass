@@ -1,13 +1,12 @@
-module Main
-  ( main
-  ) where
+module Main where
 
 import qualified Data.ByteString as B
 import Control.Monad.Trans
 
 import Lexer
+import Parser
 
-main = do
+testLexer = do
   src <- B.getContents
   let
     go = lexer $ \token -> do
@@ -17,3 +16,9 @@ main = do
         then return ()
         else go
   runLineNumberKeeperT go 1 src
+
+testParser = do
+  src <- B.getContents
+  runParserT parseScss 1 src
+
+main = testParser
