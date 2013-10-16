@@ -44,9 +44,9 @@ lexer bs = case B.uncons bs of
       Nothing -> T_Symbol first : []
       Just (second, bs'') -> case isWord second of
         True
-          | first == W._at -> takeWord T_Directive bs'
-          | first == W._percent -> takeWord T_Placeholder bs'
-          | first == W._dollar -> takeWord T_Variable bs'
+          | first == W._at -> takeIDWord T_Directive bs'
+          | first == W._percent -> takeIDWord T_Placeholder bs'
+          | first == W._dollar -> takeIDWord T_Variable bs'
           | otherwise -> fallback
         False
           | first == W._slash ->
@@ -73,7 +73,10 @@ lexer bs = case B.uncons bs of
       where
         fallback = T_Symbol first : lexer bs'
     where 
-      isWord x = W.isAlpha x || W.isDigit x || x == W._underscore || x == W._hyphen || x > 127
+      isIDWord x = isWord x || x == W._hyphen
+      isWord x = W.isAlpha x || W.isDigit x || x == W._underscore || x > 127
       isSpace x = x <= 127 && W.isSpace x
-      takeWord con bs = con word : lexer bs'
-        where (word, bs') = B.span isWord bs
+      takeWord = takeWordWith isWord
+      takeIDWord = takeWordWith isIDWord
+      takeWordWith pred con bs = con word : lexer bs'
+        where (word, bs') = B.span pred bs
