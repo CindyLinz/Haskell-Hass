@@ -77,11 +77,11 @@ runParserT = runLineNumberKeeperT
   dir_mixin { T_Directive (map (chr . fromIntegral) . B.unpack -> "mixin") }
   dir_function { T_Directive (map (chr . fromIntegral) . B.unpack -> "function") }
 
-  w_if { T_Word (map (chr . fromIntegral) . B.unpack -> "if" }
-  w_from { T_Word (map (chr . fromIntegral) . B.unpack -> "from" }
-  w_to { T_Word (map (chr . fromIntegral) . B.unpack -> "to" }
-  w_through { T_Word (map (chr . fromIntegral) . B.unpack -> "through" }
-  w_in { T_Word (map (chr . fromIntegral) . B.unpack -> "in" }
+  w_if { T_Word (map (chr . fromIntegral) . B.unpack -> "if") }
+  w_from { T_Word (map (chr . fromIntegral) . B.unpack -> "from") }
+  w_to { T_Word (map (chr . fromIntegral) . B.unpack -> "to") }
+  w_through { T_Word (map (chr . fromIntegral) . B.unpack -> "through") }
+  w_in { T_Word (map (chr . fromIntegral) . B.unpack -> "in") }
 
   sp { T_Space $$ }
   directive { T_Directive $$ }
