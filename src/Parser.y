@@ -4,7 +4,6 @@
 
 module Parser
   ( parseScss
-  , runParserT
   ) where
 
 import Data.Char
@@ -14,19 +13,14 @@ import Control.Monad.Trans
 
 import Lexer
 
-parseError :: Token -> a
+parseError :: [Token] -> a
 parseError tks = error $ "parseError: " ++ show tks
-
-type ParserT = LineNumberKeeperT
-runParserT = runLineNumberKeeperT
 
 }
 
 %name parseScss
 %tokentype { Token }
 %error { parseError }
-%monad { ParserT IO }
-%lexer { lexer } { T_End }
 
 %token
   ':' { T_Symbol (chr . fromIntegral -> ':') }
@@ -83,14 +77,16 @@ runParserT = runLineNumberKeeperT
   w_through { T_Word (map (chr . fromIntegral) . B.unpack -> "through") }
   w_in { T_Word (map (chr . fromIntegral) . B.unpack -> "in") }
 
-  sp { T_Space $$ }
+  sp { $$ }
   directive { T_Directive $$ }
   variable { T_Variable $$ }
   word { T_Word $$ }
-  comment { T_Comment _ _ _ }
+  comment { $$ }
 
 %%
 
+all
+  : {}
 
 {
 

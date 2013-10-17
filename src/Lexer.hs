@@ -1,5 +1,6 @@
 module Lexer
   ( lexer
+  , Token (..)
   ) where
 
 import qualified Data.Word8 as W
