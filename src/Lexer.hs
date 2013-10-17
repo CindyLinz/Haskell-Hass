@@ -15,8 +15,8 @@ data Token
   | T_Variable B.ByteString
   | T_Placeholder B.ByteString
   | T_Word B.ByteString
-  | T_Space B.ByteString
-  | T_Comment B.ByteString Comment.Type Comment.Important
+  | T_Space B.ByteString Int
+  | T_Comment B.ByteString Comment.Type Comment.Important Int
 
 instance Show Token where
   show (T_Symbol x) = "T_Symbol " ++ [chr $ fromIntegral x]
@@ -24,16 +24,18 @@ instance Show Token where
   show (T_Variable x) = "T_Variable " ++ show x
   show (T_Placeholder x) = "T_Placeholder " ++ show x
   show (T_Word x) = "T_Word " ++ show x
-  show (T_Space x) = "T_Space " ++ show x
-  show (T_Comment bs t i) = "T_Comment " ++ show bs ++ " " ++ show t ++ " " ++ show i
+  show (T_Space x n) = "T_Space " ++ show x ++ " (" ++ show n ++ ")"
+  show (T_Comment bs t i n) = "T_Comment " ++ show bs ++ " " ++ show t ++ " " ++ show i ++ " (" ++ show n ++ ")"
 
 lexer :: B.ByteString -> [Token]
 lexer bs = case B.uncons bs of
   Nothing -> []
   Just (first, bs') ->
     if isSpace first then
-      let (spaces, bs'') = B.span isSpace bs
-      in T_Space spaces : lexer bs''
+      let
+        (spaces, bs'') = B.span isSpace bs
+        lineCount = B.count W._lf spaces
+      in T_Space spaces lineCount : lexer bs''
     else if W._hyphen == first && B.null bs' then
       T_Symbol W._hyphen : []
     else if isWord first then
@@ -49,7 +51,7 @@ lexer bs = case B.uncons bs of
         False
           | first == W._slash ->
             let
-              T_Comment comment _ _ = head result
+              T_Comment comment _ _ _ = head result
               importance = if maybe False ((== W._exclam) . fst) (B.uncons comment)
                 then Comment.Important
                 else Comment.NotImportant
@@ -58,12 +60,13 @@ lexer bs = case B.uncons bs of
                   let
                     (c, later) = B.break (== W._lf) bs''
                     bs''' = B.tail later
-                  in T_Comment c Comment.SingleLine importance : lexer bs'''
+                  in T_Comment c Comment.SingleLine importance 1 : lexer bs'''
                 | second == W._asterisk =
                   let
                     (c, later) = B.breakSubstring (B.pack [W._asterisk, W._slash]) bs''
                     bs''' = B.drop 2 later
-                  in T_Comment c Comment.MultiLine importance : lexer bs'''
+                    lineCount = B.count W._lf c
+                  in T_Comment c Comment.MultiLine importance lineCount : lexer bs'''
                 | otherwise = fallback
             in result
           | otherwise -> fallback
