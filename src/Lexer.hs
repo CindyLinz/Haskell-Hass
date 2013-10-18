@@ -8,8 +8,6 @@ import Data.Char
 
 import qualified Data.ByteString as B
 
-import qualified Comment
-
 data Token
   = T_Symbol W.Word8
   | T_Directive B.ByteString
@@ -17,7 +15,13 @@ data Token
   | T_Placeholder B.ByteString
   | T_Word B.ByteString
   | T_Space B.ByteString Int
-  | T_Comment B.ByteString Comment.Type Comment.Important Int
+
+  | T_FileBegin
+  | T_FileEnd
+  | T_InterpolateBegin
+  | T_InterpolateEnd
+  | T_StringBegin W.Word8
+  | T_StringEnd
 
 instance Show Token where
   show (T_Symbol x) = "T_Symbol " ++ [chr $ fromIntegral x]
@@ -26,7 +30,6 @@ instance Show Token where
   show (T_Placeholder x) = "T_Placeholder " ++ show x
   show (T_Word x) = "T_Word " ++ show x
   show (T_Space x n) = "T_Space " ++ show x ++ " (" ++ show n ++ ")"
-  show (T_Comment bs t i n) = "T_Comment " ++ show bs ++ " " ++ show t ++ " " ++ show i ++ " (" ++ show n ++ ")"
 
 lexer :: B.ByteString -> [Token]
 lexer bs = case B.uncons bs of
@@ -50,26 +53,6 @@ lexer bs = case B.uncons bs of
           | first == W._dollar -> takeIDWord T_Variable bs'
           | otherwise -> fallback
         False
-          | first == W._slash ->
-            let
-              T_Comment comment _ _ _ = head result
-              importance = if maybe False ((== W._exclam) . fst) (B.uncons comment)
-                then Comment.Important
-                else Comment.NotImportant
-              result
-                | second == W._slash =
-                  let
-                    (c, later) = B.break (== W._lf) bs''
-                    bs''' = B.tail later
-                  in T_Comment c Comment.SingleLine importance 1 : lexer bs'''
-                | second == W._asterisk =
-                  let
-                    (c, later) = B.breakSubstring (B.pack [W._asterisk, W._slash]) bs''
-                    bs''' = B.drop 2 later
-                    lineCount = B.count W._lf c
-                  in T_Comment c Comment.MultiLine importance lineCount : lexer bs'''
-                | otherwise = fallback
-            in result
           | otherwise -> fallback
       where
         fallback = T_Symbol first : lexer bs'

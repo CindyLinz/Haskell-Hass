@@ -50,8 +50,7 @@ parseError tks = error $ "parseError: " ++ show tks
   '<' { T_Symbol (chr . fromIntegral -> '<') }
   '>' { T_Symbol (chr . fromIntegral -> '>') }
   '=' { T_Symbol (chr . fromIntegral -> '=') }
-
-  symbol { T_Symbol $$ }
+  other_symbol { T_Symbol _ }
 
   dir_charset { T_Directive (map (chr . fromIntegral) . B.unpack -> "charset") }
 
@@ -70,18 +69,18 @@ parseError tks = error $ "parseError: " ++ show tks
   dir_while { T_Directive (map (chr . fromIntegral) . B.unpack -> "while") }
   dir_mixin { T_Directive (map (chr . fromIntegral) . B.unpack -> "mixin") }
   dir_function { T_Directive (map (chr . fromIntegral) . B.unpack -> "function") }
+  other_dir { T_Directive _ }
 
   w_if { T_Word (map (chr . fromIntegral) . B.unpack -> "if") }
   w_from { T_Word (map (chr . fromIntegral) . B.unpack -> "from") }
   w_to { T_Word (map (chr . fromIntegral) . B.unpack -> "to") }
   w_through { T_Word (map (chr . fromIntegral) . B.unpack -> "through") }
   w_in { T_Word (map (chr . fromIntegral) . B.unpack -> "in") }
+  other_word { T_Word _ }
 
-  sp { $$ }
+  sp { T_Space _ _ }
   directive { T_Directive $$ }
   variable { T_Variable $$ }
-  word { T_Word $$ }
-  comment { $$ }
 
 %%
 
