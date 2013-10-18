@@ -77,11 +77,8 @@ parseError tks = error $ "parseError: " ++ show tks
   w_through { T_Word (map (chr . fromIntegral) . B.unpack -> "through") }
   w_in { T_Word (map (chr . fromIntegral) . B.unpack -> "in") }
 
-  sp { $$ }
-  directive { T_Directive $$ }
-  variable { T_Variable $$ }
-  word { T_Word $$ }
-  comment { $$ }
+  sp { T_Space _ _ }
+  variable { T_Variable _ }
 
 %%
 
