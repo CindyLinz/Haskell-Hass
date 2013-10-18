@@ -79,8 +79,7 @@ parseError tks = error $ "parseError: " ++ show tks
   other_word { T_Word _ }
 
   sp { T_Space _ _ }
-  directive { T_Directive $$ }
-  variable { T_Variable $$ }
+  variable { T_Variable _ }
 
 %%
 
