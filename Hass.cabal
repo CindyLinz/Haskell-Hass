@@ -84,3 +84,15 @@ Executable hass-test
                        mtl,
                        word8
 
+Executable lexer-test
+  if flag(test)
+    Buildable:           True
+  else
+    Buildable:           False
+  hs-source-dirs:      test, src
+  main-is:             TestLexer.hs
+  Build-tools:         happy >= 1.18
+  Build-depends:       base >= 4.0 && < 5,
+                       bytestring,
+                       mtl,
+                       word8
